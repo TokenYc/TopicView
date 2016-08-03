@@ -1,53 +1,75 @@
 package net.archeryc.topicview;
 
 import android.content.Context;
+import android.hardware.Camera;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by .cc on 2016/8/2.
+ * Created by 杨晨 on 2016/8/2.
+ *
  */
-public class TopicView extends LinearLayout{
+public class TopicView extends ViewGroup {
     private List<TopicTextView> mTopicTextViews;
     private Context mContext;
+    private int mTotalWidth = -1;
 
     public TopicView(Context context) {
-        this(context,null);
+        this(context, null);
     }
 
     public TopicView(Context context, AttributeSet attrs) {
-        this(context, attrs,0);
+        this(context, attrs, 0);
     }
 
     public TopicView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        this.mContext=context;
+        this.mContext = context;
         mTopicTextViews = new ArrayList<>();
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        measureChildren(widthMeasureSpec,widthMeasureSpec);
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        setMeasuredDimension(500,500);
+        mTotalWidth=getMeasuredWidth();
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
 //        setMeasuredDimension(200,200);
-        if (mTopicTextViews.size()>0){
-            mTopicTextViews.get(0).layout(l,t,r,b);
+        Log.d("width", "layoutWidth:" + mTotalWidth);
+        int mCurrentLeft=l;
+        int mCurrentTop=t;
+        if (mTopicTextViews!=null&&mTopicTextViews.size() > 0) {
+            for (TopicTextView topicTextView:mTopicTextViews){
+                if (mCurrentLeft+topicTextView.getMeasuredWidth()>mTotalWidth){
+                    mCurrentLeft=l;
+                    mCurrentTop=mCurrentTop+topicTextView.getMeasuredHeight();
+                }
+                int left=mCurrentLeft;
+                int top=mCurrentTop;
+                int right=left+topicTextView.getMeasuredWidth();
+                int bottom=top+topicTextView.getMeasuredHeight();
+                topicTextView.layout(left,top,right,bottom);
+                mCurrentLeft=right;
+            }
         }
     }
 
-    public void addTopic(String name){
-        TopicTextView topicTextView = new TopicTextView(mContext);
-        topicTextView.setText(name);
-        mTopicTextViews.add(topicTextView);
-        addView(mTopicTextViews.get(0),generateDefaultLayoutParams());
+    public void addTopic(List<String> topics) {
+        for (String name : topics) {
+            TopicTextView topicTextView = new TopicTextView(mContext);
+            topicTextView.setText(name);
+            mTopicTextViews.add(topicTextView);
+            addView(topicTextView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
         requestLayout();
     }
 }
