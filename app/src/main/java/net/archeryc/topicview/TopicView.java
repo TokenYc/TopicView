@@ -16,6 +16,8 @@ import java.util.List;
  *
  */
 public class TopicView extends ViewGroup {
+    private static final int MARGIN_LINE=20;
+    private static final int MARGIN_ROW=10;
     private List<TopicTextView> mTopicTextViews;
     private Context mContext;
     private int mTotalWidth = -1;
@@ -36,7 +38,7 @@ public class TopicView extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        measureChildren(widthMeasureSpec,widthMeasureSpec);
+        measureChildren(widthMeasureSpec,heightMeasureSpec);
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         mTotalWidth=getMeasuredWidth();
     }
@@ -51,14 +53,15 @@ public class TopicView extends ViewGroup {
             for (TopicTextView topicTextView:mTopicTextViews){
                 if (mCurrentLeft+topicTextView.getMeasuredWidth()>mTotalWidth){
                     mCurrentLeft=l;
-                    mCurrentTop=mCurrentTop+topicTextView.getMeasuredHeight();
+                    mCurrentTop=mCurrentTop+topicTextView.getMeasuredHeight()+MARGIN_LINE;
                 }
                 int left=mCurrentLeft;
                 int top=mCurrentTop;
                 int right=left+topicTextView.getMeasuredWidth();
                 int bottom=top+topicTextView.getMeasuredHeight();
+                Log.d("ltrb","left:"+left+" top:"+top+" right:"+right+" bottom:"+bottom);
                 topicTextView.layout(left,top,right,bottom);
-                mCurrentLeft=right;
+                mCurrentLeft=right+MARGIN_ROW;
             }
         }
     }
